@@ -1,8 +1,10 @@
 mod target;
 mod registry;
 mod planner;
+mod check;
 
 use clap::{Parser, Subcommand};
+use crate::planner::Planner;
 use crate::target::Target;
 
 #[derive(Parser, Debug)]
@@ -23,11 +25,16 @@ enum Commands {
 
 #[tokio::main]
 async fn main() {
+    let planner = Planner {
+        http_client: reqwest::Client::new(),
+    };
     let cli = Cli::parse();
     match cli.command {
         Commands::Check { targets } => {
-            for target in targets.iter() {
-                println!("{:?}", Target::parse(target).unwrap());
+            let checks = planner.plan(&targets.iter().map(|target| Target::parse(target).unwrap()).collect::<Vec<_>>()).unwrap();
+            let outcomes = planner.run(&checks).await.unwrap();
+            for outcome in outcomes.iter() {
+                println!("{:?}", outcome);
             }
         }
     }
