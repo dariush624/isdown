@@ -1,4 +1,5 @@
 mod target;
+mod registry;
 
 use clap::{Parser, Subcommand};
 #[derive(Parser, Debug)]
