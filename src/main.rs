@@ -1,7 +1,10 @@
 mod target;
 mod registry;
+mod planner;
 
 use clap::{Parser, Subcommand};
+use crate::target::Target;
+
 #[derive(Parser, Debug)]
 #[command(name="isdown")]
 #[command(about="Detect downtime on any service", long_about="")]
@@ -24,7 +27,7 @@ async fn main() {
     match cli.command {
         Commands::Check { targets } => {
             for target in targets.iter() {
-                println!("{}", target);
+                println!("{:?}", Target::parse(target).unwrap());
             }
         }
     }
