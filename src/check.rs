@@ -1,6 +1,9 @@
+mod github;
+
+use crate::registry::ProviderKind;
 use async_trait::async_trait;
 use thiserror::Error;
-use crate::registry::ProviderKind;
+use crate::check::github::GitHubCheck;
 
 #[derive(Copy, Clone)]
 pub struct CheckCtx<'a> {
@@ -18,28 +21,6 @@ pub trait Check {
     async fn check(&self, ctx: CheckCtx<'_>) -> Result<CheckOutcome, CheckError>;
 }
 
-pub struct GitHubCheck;
-
-#[async_trait]
-impl Check for GitHubCheck {
-    async fn check(&self, ctx: CheckCtx<'_>) -> Result<CheckOutcome, CheckError> {
-        let response = ctx.http_client.get("https://www.githubstatus.com/api/v2/status.json").send().await?.error_for_status()?;
-        let value = response.json::<serde_json::Value>().await?;
-        let status = value.get("status").and_then(|s| s.get("indicator"));
-        
-        if status.is_none() {
-            return Err(CheckError::ParseError)
-        }
-        
-        let status = status.unwrap();
-        
-        if status != "none" {
-            return Ok(CheckOutcome::Down)
-        }
-        
-        Ok(CheckOutcome::Ok)
-    }
-}
 
 impl ProviderKind {
     pub fn check(&self) -> Box<dyn Check> {
@@ -49,16 +30,12 @@ impl ProviderKind {
     }
 }
 
-
 #[derive(Error, Debug)]
 pub enum CheckError {
+    #[error("Connection error")]
     HttpError(#[from] reqwest::Error),
+    #[error("Invalid json")]
     JsonError(#[from] serde_json::Error),
+    #[error("Parse error")]
     ParseError,
-}
-
-impl std::fmt::Display for CheckError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
 }

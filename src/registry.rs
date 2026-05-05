@@ -1,8 +1,6 @@
-
-#[derive(Clone, Copy, PartialEq, Debug,)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct ProviderDetails {
     pub name: &'static str,
-    pub status_url: &'static str,
     pub kind: ProviderKind,
 }
 
@@ -12,5 +10,5 @@ pub enum ProviderKind {
 }
 
 pub static PROVIDER_REGISTRY: phf::Map<&'static str, ProviderDetails> = phf::phf_map! {
-    "github" => ProviderDetails { name: "GitHub", status_url: "https://status.github.com", kind: ProviderKind::GitHub },
+    "github" => ProviderDetails { name: "GitHub", kind: ProviderKind::GitHub },
 };
