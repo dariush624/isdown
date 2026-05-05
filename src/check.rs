@@ -1,9 +1,11 @@
 mod github;
+mod slack;
 
 use crate::registry::ProviderKind;
 use async_trait::async_trait;
 use thiserror::Error;
 use crate::check::github::GitHubCheck;
+use crate::check::slack::SlackCheck;
 
 #[derive(Copy, Clone)]
 pub struct CheckCtx<'a> {
@@ -26,6 +28,7 @@ impl ProviderKind {
     pub fn check(&self) -> Box<dyn Check> {
         match self {
             ProviderKind::GitHub => Box::new(GitHubCheck),
+            ProviderKind::Slack => Box::new(SlackCheck),
         }
     }
 }

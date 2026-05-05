@@ -7,8 +7,10 @@ pub struct ProviderDetails {
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum ProviderKind {
     GitHub,
+    Slack,
 }
 
 pub static PROVIDER_REGISTRY: phf::Map<&'static str, ProviderDetails> = phf::phf_map! {
     "github" => ProviderDetails { name: "GitHub", kind: ProviderKind::GitHub },
+    "slack" => ProviderDetails { name: "Slack", kind: ProviderKind::Slack },
 };
