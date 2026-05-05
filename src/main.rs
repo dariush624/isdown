@@ -44,7 +44,10 @@ async fn main() {
             );
             let outcomes = planner.run(&checks).await;
             for outcome in outcomes.iter() {
-                println!("{:?}", outcome);
+                match outcome {
+                    Ok(o) => println!("{}: {:?}", o.provider, o.status),
+                    Err(e) => println!("error: {}", e),
+                }
             }
         }
     }

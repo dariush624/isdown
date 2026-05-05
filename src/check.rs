@@ -12,9 +12,16 @@ pub struct CheckCtx<'a> {
     pub(crate) http_client: &'a reqwest::Client,
 }
 
-#[derive(PartialEq, Debug, Copy, Clone)]
-pub enum CheckOutcome {
-    Ok,
+#[derive(PartialEq, Debug, Clone)]
+pub struct CheckOutcome {
+    pub provider: &'static str,
+    pub status: CheckStatus,
+}
+
+#[derive(PartialEq, Debug, Clone)]
+pub enum CheckStatus {
+    Up,
+    Degraded,
     Down,
 }
 

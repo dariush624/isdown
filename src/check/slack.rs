@@ -1,4 +1,4 @@
-use crate::check::{Check, CheckCtx, CheckError, CheckOutcome};
+use crate::check::{Check, CheckCtx, CheckError, CheckOutcome, CheckStatus};
 use async_trait::async_trait;
 
 pub struct SlackCheck;
@@ -13,12 +13,16 @@ impl Check for SlackCheck {
             .await?
             .error_for_status()?;
         let value = response.json::<serde_json::Value>().await?;
-        let status = value.get("status").ok_or(CheckError::ParseError)?;
+        let status = value
+            .get("status")
+            .and_then(|s| s.as_str())
+            .ok_or(CheckError::ParseError)?;
 
-        if status != "ok" {
-            return Ok(CheckOutcome::Down);
-        }
+        let status = match status {
+            "ok" => CheckStatus::Up,
+            _ => CheckStatus::Down,
+        };
 
-        Ok(CheckOutcome::Ok)
+        Ok(CheckOutcome { provider: "Slack", status })
     }
 }
