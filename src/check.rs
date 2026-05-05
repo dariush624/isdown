@@ -1,11 +1,11 @@
 mod github;
 mod slack;
 
+use crate::check::github::GitHubCheck;
+use crate::check::slack::SlackCheck;
 use crate::registry::ProviderKind;
 use async_trait::async_trait;
 use thiserror::Error;
-use crate::check::github::GitHubCheck;
-use crate::check::slack::SlackCheck;
 
 #[derive(Copy, Clone)]
 pub struct CheckCtx<'a> {
@@ -22,7 +22,6 @@ pub enum CheckOutcome {
 pub trait Check {
     async fn check(&self, ctx: CheckCtx<'_>) -> Result<CheckOutcome, CheckError>;
 }
-
 
 impl ProviderKind {
     pub fn check(&self) -> Box<dyn Check> {

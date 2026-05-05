@@ -36,13 +36,12 @@ async fn main() {
     let cli = Cli::parse();
     match cli.command {
         Commands::Check { targets } => {
-            let checks = planner
-                .plan(
-                    &targets
-                        .iter()
-                        .map(|target| Target::parse(target).unwrap())
-                        .collect::<Vec<_>>(),
-                );
+            let checks = planner.plan(
+                &targets
+                    .iter()
+                    .map(|target| Target::parse(target).unwrap())
+                    .collect::<Vec<_>>(),
+            );
             let outcomes = planner.run(&checks).await;
             for outcome in outcomes.iter() {
                 println!("{:?}", outcome);
