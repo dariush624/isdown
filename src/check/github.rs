@@ -25,6 +25,9 @@ impl Check for GitHubCheck {
             _ => CheckStatus::Down,
         };
 
-        Ok(CheckOutcome { provider: "GitHub", status })
+        Ok(CheckOutcome {
+            provider: "GitHub",
+            status,
+        })
     }
 }

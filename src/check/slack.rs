@@ -23,6 +23,9 @@ impl Check for SlackCheck {
             _ => CheckStatus::Down,
         };
 
-        Ok(CheckOutcome { provider: "Slack", status })
+        Ok(CheckOutcome {
+            provider: "Slack",
+            status,
+        })
     }
 }

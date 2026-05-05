@@ -12,6 +12,8 @@ use std::time::Duration;
 #[command(name = "isdown")]
 #[command(about = "Detect downtime on any service", long_about = "")]
 struct Cli {
+    #[arg(short, long, default_value_t = 10)]
+    timeout: u64,
     #[command(subcommand)]
     command: Commands,
 }
@@ -26,14 +28,13 @@ enum Commands {
 
 #[tokio::main]
 async fn main() {
+    let cli = Cli::parse();
     let planner = Planner {
-        // TODO: configure timeout
         http_client: reqwest::Client::builder()
-            .timeout(Duration::from_secs(10))
+            .timeout(Duration::from_secs(cli.timeout))
             .build()
             .unwrap(),
     };
-    let cli = Cli::parse();
     match cli.command {
         Commands::Check { targets } => {
             let checks = planner.plan(
