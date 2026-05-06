@@ -6,6 +6,7 @@ mod target;
 use crate::planner::Planner;
 use crate::target::Target;
 use clap::{Parser, Subcommand};
+use colored::Colorize;
 use std::time::Duration;
 
 #[derive(Parser, Debug)]
@@ -46,8 +47,19 @@ async fn main() {
             let outcomes = planner.run(&checks).await;
             for outcome in outcomes.iter() {
                 match outcome {
-                    Ok(o) => println!("{}: {:?}", o.provider, o.status),
-                    Err(e) => println!("error: {}", e),
+                    Ok(o) => {
+                        use crate::check::CheckStatus;
+                        let status = match o.status {
+                            CheckStatus::Up => "Up".green(),
+                            CheckStatus::Degraded => "Degraded".yellow(),
+                            CheckStatus::Down => "Down".red(),
+                        };
+                        println!("{}: {}", o.provider.bold(), status);
+                        for cause in &o.causes {
+                            println!("  · {}", cause.dimmed());
+                        }
+                    }
+                    Err(e) => println!("{}: {}", "error".red().bold(), e),
                 }
             }
         }

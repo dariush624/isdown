@@ -13,19 +13,31 @@ impl Check for SlackCheck {
             .await?
             .error_for_status()?;
         let value = response.json::<serde_json::Value>().await?;
-        let status = value
+        let status_str = value
             .get("status")
             .and_then(|s| s.as_str())
             .ok_or(CheckError::ParseError)?;
 
-        let status = match status {
+        let status = match status_str {
             "ok" => CheckStatus::Up,
             _ => CheckStatus::Down,
         };
 
-        Ok(CheckOutcome {
-            provider: "Slack",
-            status,
-        })
+        let causes = value
+            .get("active_incidents")
+            .and_then(|i| i.as_array())
+            .map(|incidents| {
+                incidents
+                    .iter()
+                    .filter_map(|i| {
+                        let title = i.get("title")?.as_str()?;
+                        let status = i.get("status")?.as_str()?;
+                        Some(format!("{} ({})", title, status))
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+
+        Ok(CheckOutcome { provider: "Slack", status, causes })
     }
 }

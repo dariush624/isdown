@@ -16,6 +16,7 @@ pub struct CheckCtx<'a> {
 pub struct CheckOutcome {
     pub provider: &'static str,
     pub status: CheckStatus,
+    pub causes: Vec<String>,
 }
 
 #[derive(PartialEq, Debug, Clone)]

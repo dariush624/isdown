@@ -8,7 +8,7 @@ impl Check for GitHubCheck {
     async fn check(&self, ctx: CheckCtx<'_>) -> Result<CheckOutcome, CheckError> {
         let response = ctx
             .http_client
-            .get("https://www.githubstatus.com/api/v2/status.json")
+            .get("https://www.githubstatus.com/api/v2/summary.json")
             .send()
             .await?
             .error_for_status()?;
@@ -25,9 +25,21 @@ impl Check for GitHubCheck {
             _ => CheckStatus::Down,
         };
 
-        Ok(CheckOutcome {
-            provider: "GitHub",
-            status,
-        })
+        let causes = value
+            .get("incidents")
+            .and_then(|i| i.as_array())
+            .map(|incidents| {
+                incidents
+                    .iter()
+                    .filter_map(|i| {
+                        let name = i.get("name")?.as_str()?;
+                        let status = i.get("status")?.as_str()?;
+                        Some(format!("{} ({})", name, status))
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+
+        Ok(CheckOutcome { provider: "GitHub", status, causes })
     }
 }
