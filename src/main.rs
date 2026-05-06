@@ -3,10 +3,12 @@ mod planner;
 mod registry;
 mod target;
 
+use crate::check::CheckOutcome;
 use crate::planner::Planner;
 use crate::target::Target;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
+use serde::Serialize;
 use std::time::Duration;
 
 #[derive(Parser, Debug)]
@@ -29,6 +31,12 @@ enum Commands {
     },
 }
 
+#[derive(Serialize)]
+enum JsonOutcome {
+    Success(CheckOutcome),
+    Failure(String),
+}
+
 #[tokio::main]
 async fn main() {
     let cli = Cli::parse();
@@ -49,12 +57,14 @@ async fn main() {
             let outcomes = planner.run(&checks).await;
 
             if json {
-                let good_outcomes = outcomes
-                    .iter()
-                    .filter(|out| out.is_ok())
-                    .map(|out| out.as_ref().unwrap())
-                    .collect::<Vec<_>>();
-                println!("{}", serde_json::to_string_pretty(&good_outcomes).unwrap());
+                let json_outcomes: Vec<JsonOutcome> = outcomes
+                    .into_iter()
+                    .map(|o| match o {
+                        Ok(outcome) => JsonOutcome::Success(outcome),
+                        Err(e) => JsonOutcome::Failure(e.to_string()),
+                    })
+                    .collect();
+                println!("{}", serde_json::to_string_pretty(&json_outcomes).unwrap());
             } else {
                 for outcome in outcomes.iter() {
                     match outcome {
