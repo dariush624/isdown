@@ -1,6 +1,7 @@
 mod aws;
 mod slack;
 mod statuspageio;
+pub(crate) mod url;
 
 use crate::check::aws::AwsCheck;
 use crate::check::slack::SlackCheck;

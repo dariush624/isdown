@@ -48,12 +48,20 @@ async fn main() {
     };
     match cli.command {
         Commands::Check { targets, json } => {
-            let checks = planner.plan(
-                &targets
-                    .iter()
-                    .map(|target| Target::parse(target).unwrap())
-                    .collect::<Vec<_>>(),
-            );
+            let mut parsed_targets: Vec<Target> = vec![];
+            for target in targets.iter() {
+                match Target::parse(target) {
+                    Some(t) => {
+                        parsed_targets.push(t);
+                    }
+                    _ => {
+                        println!("{}: Invalid target - {}", "error".red().bold(), target);
+                        continue;
+                    }
+                }
+            }
+
+            let checks = planner.plan(&parsed_targets);
             let outcomes = planner.run(&checks).await;
 
             if json {
@@ -66,6 +74,14 @@ async fn main() {
                     .collect();
                 println!("{}", serde_json::to_string_pretty(&json_outcomes).unwrap());
             } else {
+                let mut max_width = outcomes
+                    .iter()
+                    .filter_map(|o| o.as_ref().ok())
+                    .map(|o| o.provider.len())
+                    .max()
+                    .unwrap_or(0);
+                max_width = max_width.min(40);
+
                 for outcome in outcomes.iter() {
                     match outcome {
                         Ok(o) => {
@@ -75,7 +91,12 @@ async fn main() {
                                 CheckStatus::Degraded => "Degraded".yellow(),
                                 CheckStatus::Down => "Down".red(),
                             };
-                            println!("{}: {}", o.provider.bold(), status);
+                            let label = format!(
+                                "{:<width$}",
+                                format!("{}:", o.provider),
+                                width = max_width + 1
+                            );
+                            println!("{} {}", label.bold(), status);
                             for cause in &o.causes {
                                 println!("  · {}", cause.dimmed());
                             }
