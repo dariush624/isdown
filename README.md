@@ -1,51 +1,147 @@
-# isdown
+<p align="center">
+  <h1 align="center">isdown</h1>
+  <p align="center">Check if a service is down. From your terminal.</p>
+</p>
 
-[![Rust](https://github.com/dariush624/isdown/actions/workflows/rust.yml/badge.svg?branch=main)](https://github.com/dariush624/isdown/actions/workflows/rust.yml)
+<p align="center">
+  <a href="https://github.com/dariush624/isdown/actions/workflows/rust.yml"><img src="https://github.com/dariush624/isdown/actions/workflows/rust.yml/badge.svg?branch=main" alt="CI"></a>
+  <a href="https://github.com/dariush624/isdown/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
+</p>
 
-> Work in progress
+---
 
-A CLI tool that checks the live status of third-party services by querying their public status APIs.
-
-```
-isdown check github
-isdown check github slack aws
-isdown check github --json
-```
-
-## Supported services
-
-| Name | Provider |
-|------|----------|
-| `github` | GitHub |
-| `slack` | Slack |
-| `aws` | Amazon Web Services |
-| `atlassian` | Atlassian |
-| `circleci` | CircleCI |
-| `cloudflare` | Cloudflare |
-| `datadog` | Datadog |
-| `discord` | Discord |
-| `linear` | Linear |
-| `netlify` | Netlify |
-| `npm` | npm |
-| `openai` | OpenAI |
-| `vercel` | Vercel |
-
-## Output
+A fast CLI tool that checks the live status of third-party services by querying their public status APIs. No API keys needed.
 
 ```
-GitHub: Up
-Slack: Degraded
+$ isdown check github slack
+
+GitHub:  Up
+Slack:   Degraded
   · Slow API (investigating)
-AWS: Down
-  · S3 errors (us-east-1)
 ```
 
-Pass `--json` for machine-readable output.
+## Features
+
+- **14 built-in services** — GitHub, AWS, Slack, Cloudflare, and more
+- **Concurrent checks** — all services queried in parallel
+- **URL targets** — check any HTTP endpoint directly
+- **JSON output** — machine-readable results with `--json`
+- **Incident details** — shows active incidents and their status
+
+## Installation
+
+### From source (requires [Rust toolchain](https://rustup.rs/))
+
+```sh
+git clone https://github.com/dariush624/isdown.git
+cd isdown
+cargo install --path .
+```
+
+
+## Usage
+
+### Check one or more services
+
+```sh
+isdown check github
+isdown check github slack aws cloudflare
+```
+
+### Check any URL
+
+```sh
+isdown check https://example.com
+isdown check github https://my-api.example.com
+```
+
+### JSON output
+
+```sh
+isdown check github slack --json
+```
+
+```json
+[
+  {
+    "Success": {
+      "provider": "GitHub",
+      "status": "Up",
+      "causes": []
+    }
+  },
+  {
+    "Success": {
+      "provider": "Slack",
+      "status": "Up",
+      "causes": []
+    }
+  }
+]
+```
+
+### Custom timeout
+
+```sh
+isdown -t 5 check aws
+```
+
+## Supported Services
+
+| Name         | Key               | Status Source               |
+| ------------ |-------------------| --------------------------- |
+| GitHub       | `github`          | Statuspage                  |
+| Slack        | `slack`           | Slack Status API            |
+| AWS          | `aws`             | AWS Health Dashboard        |
+| Atlassian    | `atlassian`       | Statuspage                  |
+| CircleCI     | `circleci`        | Statuspage                  |
+| Claude       | `claude`          | Statuspage                  |
+| Cloudflare   | `cloudflare`      | Statuspage                  |
+| Datadog      | `datadog`         | Statuspage                  |
+| Discord      | `discord`         | Statuspage                  |
+| Linear       | `linear`          | Statuspage                  |
+| Netlify      | `netlify`         | Statuspage                  |
+| npm          | `npm`             | Statuspage                  |
+| OpenAI       | `openai`/`chatgpt` | Statuspage                  |
+| Vercel       | `vercel`          | Statuspage                  |
+
 
 ## Options
 
-| Flag              | Default | Description |
-|-------------------|---------|-------------|
-| `-t`, `--timeout` | `10` | Request timeout in seconds |
-| `--json`, `-j`     | off | Output results as JSON |
+| Flag              | Default | Description                |
+| ----------------- | ------- | -------------------------- |
+| `-t`, `--timeout` | `10`    | Request timeout in seconds |
+| `-j`, `--json`    | off     | Output results as JSON     |
 
+## How It Works
+
+`isdown` queries public status APIs for each service:
+
+- **Statuspage-based services** (GitHub, Cloudflare, Discord, etc.) use the [Atlassian Statuspage](https://www.atlassianstatuspage.com/) `/api/v2/summary.json` endpoint
+- **AWS** parses the [AWS Health Dashboard](https://health.aws.amazon.com/) events feed, reporting per-service and per-region incidents
+- **Slack** uses the Slack Status API
+- **URL targets** perform a simple HTTP GET and report Up (200) or Down (non-200)
+
+## Contributing
+
+Contributions are welcome! To add a new Statuspage-based service, it's a one-liner:
+
+```rust
+// in src/check/statuspageio.rs
+statuspage_provider!(MyServiceCheck, "MyService", "status.myservice.com");
+```
+
+Then register it in `src/registry.rs` and `src/check.rs`.
+
+```sh
+# Run tests
+cargo test
+
+# Run lints
+cargo clippy
+cargo fmt --check
+```
+
+## License
+
+[MIT](LICENSE)
