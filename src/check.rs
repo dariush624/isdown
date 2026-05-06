@@ -40,7 +40,7 @@ pub trait Check {
 
 pub trait ProviderCheck: Send + Sync {
     fn provider(&self) -> &'static str;
-    fn url(&self) -> &'static str;
+    fn url(&self) -> &str;
     fn parse_status(&self, value: &Value) -> Result<String, CheckError>;
     fn map_status(&self, status: String) -> CheckStatus;
     fn causes(&self, value: &Value) -> Vec<String>;

@@ -8,7 +8,7 @@ impl ProviderCheck for SlackCheck {
         "Slack"
     }
 
-    fn url(&self) -> &'static str {
+    fn url(&self) -> &str {
         "https://slack-status.com/api/v2.0.0/current"
     }
 
