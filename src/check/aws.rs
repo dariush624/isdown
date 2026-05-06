@@ -35,7 +35,10 @@ pub(crate) fn parse_incidents(incidents: &[Value]) -> Vec<CheckOutcome> {
 
     let mut outcomes = Vec::new();
     for incident in incidents {
-        let impacted = match incident.get("impacted_services").and_then(|s| s.as_object()) {
+        let impacted = match incident
+            .get("impacted_services")
+            .and_then(|s| s.as_object())
+        {
             Some(m) => m,
             None => continue,
         };
@@ -214,7 +217,6 @@ mod tests {
         assert_eq!(outcomes[0].provider, "AWS");
     }
 
-
     #[tokio::test]
     async fn check_parses_http_response() {
         let server = httpmock::MockServer::start();
@@ -227,7 +229,14 @@ mod tests {
 
         let url = server.url("/currentevents");
         let client = reqwest::Client::new();
-        let body = client.get(&url).send().await.unwrap().bytes().await.unwrap();
+        let body = client
+            .get(&url)
+            .send()
+            .await
+            .unwrap()
+            .bytes()
+            .await
+            .unwrap();
         let json_str = decode_utf16(&body).unwrap();
         let incidents: Vec<Value> = serde_json::from_str(&json_str).unwrap();
         let outcomes = parse_incidents(&incidents);

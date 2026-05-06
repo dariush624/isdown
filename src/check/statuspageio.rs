@@ -91,13 +91,19 @@ mod tests {
 
     #[test]
     fn map_status_minor_is_degraded() {
-        assert_eq!(check().map_status("minor".to_string()), CheckStatus::Degraded);
+        assert_eq!(
+            check().map_status("minor".to_string()),
+            CheckStatus::Degraded
+        );
     }
 
     #[test]
     fn map_status_other_is_down() {
         assert_eq!(check().map_status("major".to_string()), CheckStatus::Down);
-        assert_eq!(check().map_status("critical".to_string()), CheckStatus::Down);
+        assert_eq!(
+            check().map_status("critical".to_string()),
+            CheckStatus::Down
+        );
     }
 
     #[test]
@@ -127,7 +133,11 @@ mod tests {
 
     #[test]
     fn causes_skips_malformed_incidents() {
-        assert!(check().causes(&json!({ "incidents": [{ "no_name": true }] })).is_empty());
+        assert!(
+            check()
+                .causes(&json!({ "incidents": [{ "no_name": true }] }))
+                .is_empty()
+        );
     }
 
     struct MockProvider {
@@ -135,8 +145,12 @@ mod tests {
     }
 
     impl ProviderCheck for MockProvider {
-        fn provider(&self) -> &'static str { "TestProvider" }
-        fn url(&self) -> &str { &self.url }
+        fn provider(&self) -> &'static str {
+            "TestProvider"
+        }
+        fn url(&self) -> &str {
+            &self.url
+        }
 
         fn parse_status(&self, value: &serde_json::Value) -> Result<String, CheckError> {
             value
@@ -183,9 +197,13 @@ mod tests {
                 .body(r#"{"status":{"indicator":"none"},"incidents":[]}"#);
         });
 
-        let provider = MockProvider { url: server.url("/summary.json") };
+        let provider = MockProvider {
+            url: server.url("/summary.json"),
+        };
         let client = reqwest::Client::new();
-        let ctx = CheckCtx { http_client: &client };
+        let ctx = CheckCtx {
+            http_client: &client,
+        };
         let outcomes = provider.check(ctx).await.unwrap();
 
         assert_eq!(outcomes.len(), 1);
@@ -204,9 +222,13 @@ mod tests {
                 .body(r#"{"status":{"indicator":"minor"},"incidents":[{"name":"Slow API","status":"investigating"}]}"#);
         });
 
-        let provider = MockProvider { url: server.url("/summary.json") };
+        let provider = MockProvider {
+            url: server.url("/summary.json"),
+        };
         let client = reqwest::Client::new();
-        let ctx = CheckCtx { http_client: &client };
+        let ctx = CheckCtx {
+            http_client: &client,
+        };
         let outcomes = provider.check(ctx).await.unwrap();
 
         assert_eq!(outcomes[0].status, CheckStatus::Degraded);
@@ -221,9 +243,13 @@ mod tests {
             then.status(503);
         });
 
-        let provider = MockProvider { url: server.url("/summary.json") };
+        let provider = MockProvider {
+            url: server.url("/summary.json"),
+        };
         let client = reqwest::Client::new();
-        let ctx = CheckCtx { http_client: &client };
+        let ctx = CheckCtx {
+            http_client: &client,
+        };
         assert!(provider.check(ctx).await.is_err());
     }
 }
