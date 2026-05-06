@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/dariush624/isdown/compare/isdown-v0.3.0...isdown-v0.3.1) (2026-05-06)
+
+
+### Bug Fixes
+
+* lint enum ([9802bc3](https://github.com/dariush624/isdown/commit/9802bc3551f48f0a7bd0aa9e390ea4254f5a744a))
+
 ## [0.3.0](https://github.com/dariush624/isdown/compare/isdown-v0.2.0...isdown-v0.3.0) (2026-05-06)
 
 
