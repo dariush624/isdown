@@ -1,8 +1,11 @@
-mod github;
 mod slack;
+mod statuspageio;
 
-use crate::check::github::GitHubCheck;
 use crate::check::slack::SlackCheck;
+use crate::check::statuspageio::{
+    AtlassianCheck, CircleCICheck, CloudflareCheck, DatadogCheck, DiscordCheck, LinearCheck,
+    NetlifyCheck, NpmCheck, OpenAICheck, VercelCheck, GitHubCheck
+};
 use crate::registry::ProviderKind;
 use async_trait::async_trait;
 use serde_json::Value;
@@ -69,6 +72,16 @@ impl ProviderKind {
         match self {
             ProviderKind::GitHub => Box::new(GitHubCheck),
             ProviderKind::Slack => Box::new(SlackCheck),
+            ProviderKind::Atlassian => Box::new(AtlassianCheck),
+            ProviderKind::CircleCI => Box::new(CircleCICheck),
+            ProviderKind::Cloudflare => Box::new(CloudflareCheck),
+            ProviderKind::Datadog => Box::new(DatadogCheck),
+            ProviderKind::Discord => Box::new(DiscordCheck),
+            ProviderKind::Linear => Box::new(LinearCheck),
+            ProviderKind::Netlify => Box::new(NetlifyCheck),
+            ProviderKind::Npm => Box::new(NpmCheck),
+            ProviderKind::OpenAI => Box::new(OpenAICheck),
+            ProviderKind::Vercel => Box::new(VercelCheck),
         }
     }
 }
