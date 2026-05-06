@@ -1,5 +1,7 @@
 # isdown
 
+[![Rust](https://github.com/dariush624/isdown/actions/workflows/rust.yml/badge.svg?branch=main)](https://github.com/dariush624/isdown/actions/workflows/rust.yml)
+
 > Work in progress
 
 A CLI tool that checks the live status of third-party services by querying their public status APIs.
