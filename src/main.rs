@@ -9,6 +9,7 @@ use crate::target::Target;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
 use serde::Serialize;
+use std::process::exit;
 use std::time::Duration;
 
 #[derive(Parser, Debug)]
@@ -40,11 +41,17 @@ enum JsonOutcome {
 #[tokio::main]
 async fn main() {
     let cli = Cli::parse();
+    let http_client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(cli.timeout))
+        .build();
+
+    if let Err(e) = http_client {
+        println!("Error creating http client {}", e);
+        exit(1);
+    }
+
     let planner = Planner {
-        http_client: reqwest::Client::builder()
-            .timeout(Duration::from_secs(cli.timeout))
-            .build()
-            .unwrap(),
+        http_client: http_client.unwrap(),
     };
     match cli.command {
         Commands::Check { targets, json } => {
