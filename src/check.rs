@@ -3,11 +3,12 @@ mod statuspageio;
 
 use crate::check::slack::SlackCheck;
 use crate::check::statuspageio::{
-    AtlassianCheck, CircleCICheck, CloudflareCheck, DatadogCheck, DiscordCheck, LinearCheck,
-    NetlifyCheck, NpmCheck, OpenAICheck, VercelCheck, GitHubCheck
+    AtlassianCheck, CircleCICheck, CloudflareCheck, DatadogCheck, DiscordCheck, GitHubCheck,
+    LinearCheck, NetlifyCheck, NpmCheck, OpenAICheck, VercelCheck,
 };
 use crate::registry::ProviderKind;
 use async_trait::async_trait;
+use serde::Serialize;
 use serde_json::Value;
 use thiserror::Error;
 
@@ -16,14 +17,14 @@ pub struct CheckCtx<'a> {
     pub(crate) http_client: &'a reqwest::Client,
 }
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Serialize)]
 pub struct CheckOutcome {
     pub provider: &'static str,
     pub status: CheckStatus,
     pub causes: Vec<String>,
 }
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Serialize)]
 pub enum CheckStatus {
     Up,
     Degraded,

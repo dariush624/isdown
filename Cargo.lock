@@ -713,6 +713,7 @@ dependencies = [
  "futures",
  "phf",
  "reqwest",
+ "serde",
  "serde_json",
  "thiserror",
  "tokio",

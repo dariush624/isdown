@@ -24,6 +24,8 @@ enum Commands {
     Check {
         #[arg(required = true)]
         targets: Vec<String>,
+        #[arg(short, long, default_value_t = false)]
+        json: bool,
     },
 }
 
@@ -37,7 +39,7 @@ async fn main() {
             .unwrap(),
     };
     match cli.command {
-        Commands::Check { targets } => {
+        Commands::Check { targets, json } => {
             let checks = planner.plan(
                 &targets
                     .iter()
@@ -45,21 +47,31 @@ async fn main() {
                     .collect::<Vec<_>>(),
             );
             let outcomes = planner.run(&checks).await;
-            for outcome in outcomes.iter() {
-                match outcome {
-                    Ok(o) => {
-                        use crate::check::CheckStatus;
-                        let status = match o.status {
-                            CheckStatus::Up => "Up".green(),
-                            CheckStatus::Degraded => "Degraded".yellow(),
-                            CheckStatus::Down => "Down".red(),
-                        };
-                        println!("{}: {}", o.provider.bold(), status);
-                        for cause in &o.causes {
-                            println!("  · {}", cause.dimmed());
+
+            if json {
+                let good_outcomes = outcomes
+                    .iter()
+                    .filter(|out| out.is_ok())
+                    .map(|out| out.as_ref().unwrap())
+                    .collect::<Vec<_>>();
+                println!("{}", serde_json::to_string_pretty(&good_outcomes).unwrap());
+            } else {
+                for outcome in outcomes.iter() {
+                    match outcome {
+                        Ok(o) => {
+                            use crate::check::CheckStatus;
+                            let status = match o.status {
+                                CheckStatus::Up => "Up".green(),
+                                CheckStatus::Degraded => "Degraded".yellow(),
+                                CheckStatus::Down => "Down".red(),
+                            };
+                            println!("{}: {}", o.provider.bold(), status);
+                            for cause in &o.causes {
+                                println!("  · {}", cause.dimmed());
+                            }
                         }
+                        Err(e) => println!("{}: {}", "error".red().bold(), e),
                     }
-                    Err(e) => println!("{}: {}", "error".red().bold(), e),
                 }
             }
         }
