@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/dariush624/isdown/compare/isdown-v0.3.1...isdown-v0.3.2) (2026-05-06)
+
+
+### Bug Fixes
+
+* Rename workflow to 'Rust Lint & Fmt' ([b37fa96](https://github.com/dariush624/isdown/commit/b37fa96dfbc5d060b97664f6ff7cc94bf6b70763))
+
 ## [0.3.1](https://github.com/dariush624/isdown/compare/isdown-v0.3.0...isdown-v0.3.1) (2026-05-06)
 
 
