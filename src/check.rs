@@ -5,6 +5,7 @@ use crate::check::github::GitHubCheck;
 use crate::check::slack::SlackCheck;
 use crate::registry::ProviderKind;
 use async_trait::async_trait;
+use serde_json::Value;
 use thiserror::Error;
 
 #[derive(Copy, Clone)]
@@ -29,6 +30,38 @@ pub enum CheckStatus {
 #[async_trait]
 pub trait Check {
     async fn check(&self, ctx: CheckCtx<'_>) -> Result<CheckOutcome, CheckError>;
+}
+
+pub trait ProviderCheck: Send + Sync {
+    fn provider(&self) -> &'static str;
+    fn url(&self) -> &'static str;
+    fn parse_status(&self, value: &Value) -> Result<String, CheckError>;
+    fn map_status(&self, status: String) -> CheckStatus;
+    fn causes(&self, value: &Value) -> Vec<String>;
+}
+
+#[async_trait]
+impl<T: ProviderCheck> Check for T {
+    async fn check(&self, ctx: CheckCtx<'_>) -> Result<CheckOutcome, CheckError> {
+        let result = ctx
+            .http_client
+            .get(self.url())
+            .send()
+            .await?
+            .error_for_status()?;
+        let value = result.json::<Value>().await?;
+        let status_string = self.parse_status(&value)?;
+
+        let provider = self.provider();
+        let status = self.map_status(status_string);
+        let causes = self.causes(&value);
+
+        Ok(CheckOutcome {
+            provider,
+            status,
+            causes,
+        })
+    }
 }
 
 impl ProviderKind {

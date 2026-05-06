@@ -1,29 +1,34 @@
-use crate::check::{Check, CheckCtx, CheckError, CheckOutcome, CheckStatus};
-use async_trait::async_trait;
+use crate::check::{CheckError, CheckStatus, ProviderCheck};
+use serde_json::Value;
 
 pub struct SlackCheck;
 
-#[async_trait]
-impl Check for SlackCheck {
-    async fn check(&self, ctx: CheckCtx<'_>) -> Result<CheckOutcome, CheckError> {
-        let response = ctx
-            .http_client
-            .get("https://slack-status.com/api/v2.0.0/current")
-            .send()
-            .await?
-            .error_for_status()?;
-        let value = response.json::<serde_json::Value>().await?;
-        let status_str = value
+impl ProviderCheck for SlackCheck {
+    fn provider(&self) -> &'static str {
+        "Slack"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://slack-status.com/api/v2.0.0/current"
+    }
+
+    fn parse_status(&self, value: &Value) -> Result<String, CheckError> {
+        value
             .get("status")
             .and_then(|s| s.as_str())
-            .ok_or(CheckError::ParseError)?;
+            .map(|s| s.to_string())
+            .ok_or(CheckError::ParseError)
+    }
 
-        let status = match status_str {
+    fn map_status(&self, status: String) -> CheckStatus {
+        match status.as_str() {
             "ok" => CheckStatus::Up,
             _ => CheckStatus::Down,
-        };
+        }
+    }
 
-        let causes = value
+    fn causes(&self, value: &Value) -> Vec<String> {
+        value
             .get("active_incidents")
             .and_then(|i| i.as_array())
             .map(|incidents| {
@@ -36,8 +41,6 @@ impl Check for SlackCheck {
                     })
                     .collect()
             })
-            .unwrap_or_default();
-
-        Ok(CheckOutcome { provider: "Slack", status, causes })
+            .unwrap_or_default()
     }
 }

@@ -1,31 +1,36 @@
-use crate::check::{Check, CheckCtx, CheckError, CheckOutcome, CheckStatus};
-use async_trait::async_trait;
+use crate::check::{CheckError, CheckStatus, ProviderCheck};
+use serde_json::Value;
 
 pub struct GitHubCheck;
 
-#[async_trait]
-impl Check for GitHubCheck {
-    async fn check(&self, ctx: CheckCtx<'_>) -> Result<CheckOutcome, CheckError> {
-        let response = ctx
-            .http_client
-            .get("https://www.githubstatus.com/api/v2/summary.json")
-            .send()
-            .await?
-            .error_for_status()?;
-        let value = response.json::<serde_json::Value>().await?;
-        let indicator = value
+impl ProviderCheck for GitHubCheck {
+    fn provider(&self) -> &'static str {
+        "GitHub"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://www.githubstatus.com/api/v2/summary.json"
+    }
+
+    fn parse_status(&self, value: &Value) -> Result<String, CheckError> {
+        value
             .get("status")
             .and_then(|s| s.get("indicator"))
             .and_then(|i| i.as_str())
-            .ok_or(CheckError::ParseError)?;
+            .map(|s| s.to_string())
+            .ok_or(CheckError::ParseError)
+    }
 
-        let status = match indicator {
+    fn map_status(&self, status: String) -> CheckStatus {
+        match status.as_str() {
             "none" => CheckStatus::Up,
             "minor" => CheckStatus::Degraded,
             _ => CheckStatus::Down,
-        };
+        }
+    }
 
-        let causes = value
+    fn causes(&self, value: &Value) -> Vec<String> {
+        value
             .get("incidents")
             .and_then(|i| i.as_array())
             .map(|incidents| {
@@ -38,8 +43,6 @@ impl Check for GitHubCheck {
                     })
                     .collect()
             })
-            .unwrap_or_default();
-
-        Ok(CheckOutcome { provider: "GitHub", status, causes })
+            .unwrap_or_default()
     }
 }
