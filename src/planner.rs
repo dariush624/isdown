@@ -1,3 +1,4 @@
+use crate::check::url::UrlCheck;
 use crate::check::{Check, CheckCtx, CheckError, CheckOutcome};
 use crate::target::Target;
 use futures::future::join_all;
@@ -14,6 +15,7 @@ impl Planner {
                 Target::Provider(details) => {
                     checks.push(details.kind.check());
                 }
+                Target::Url(url) => checks.push(Box::new(UrlCheck::new(url.clone()))),
             }
         }
 

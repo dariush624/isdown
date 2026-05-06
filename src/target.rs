@@ -4,7 +4,6 @@ use crate::registry::{PROVIDER_REGISTRY, ProviderDetails};
 pub enum Target {
     Provider(ProviderDetails),
     Url(String),
-    
 }
 
 impl Target {
@@ -13,16 +12,14 @@ impl Target {
         let result = PROVIDER_REGISTRY
             .get(key.as_str())
             .map(|details| Target::Provider(*details));
-        
+
         result.or_else(|| {
             if key.starts_with("http") || key.starts_with("https") {
                 Some(Target::Url(target.to_string()))
             } else {
                 None
             }
-        });
-        
-        result
+        })
     }
 }
 
@@ -33,27 +30,37 @@ mod tests {
 
     #[test]
     fn parse_url() {
-        let Target::Url(url) = Target::parse("https://example.com").unwrap();
+        let Target::Url(url) = Target::parse("https://example.com").unwrap() else {
+            panic!("Expected URL target")
+        };
         assert_eq!(url, "https://example.com");
     }
-    
+
     #[test]
     fn parse_known_provider() {
-        let Target::Provider(d) = Target::parse("github").unwrap();
+        let Target::Provider(d) = Target::parse("github").unwrap() else {
+            panic!("Expected provider target")
+        };
         assert_eq!(d.kind, ProviderKind::GitHub);
     }
 
     #[test]
     fn parse_case_insensitive() {
-        let Target::Provider(d) = Target::parse("GitHub").unwrap();
+        let Target::Provider(d) = Target::parse("GitHub").unwrap() else {
+            panic!("Expected provider target")
+        };
         assert_eq!(d.kind, ProviderKind::GitHub);
-        let Target::Provider(d) = Target::parse("GITHUB").unwrap();
+        let Target::Provider(d) = Target::parse("GITHUB").unwrap() else {
+            panic!("Expected provider target")
+        };
         assert_eq!(d.kind, ProviderKind::GitHub);
     }
 
     #[test]
     fn parse_trims_whitespace() {
-        let Target::Provider(d) = Target::parse("  aws  ").unwrap();
+        let Target::Provider(d) = Target::parse("  aws  ").unwrap() else {
+            panic!("Expected provider target")
+        };
         assert_eq!(d.kind, ProviderKind::Aws);
     }
 

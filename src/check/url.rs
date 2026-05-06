@@ -1,5 +1,5 @@
-use reqwest::Response;
-use crate::check::{Check, CheckCtx, CheckError, CheckOutcome};
+use crate::check::{Check, CheckCtx, CheckError, CheckOutcome, CheckStatus};
+use async_trait::async_trait;
 
 pub struct UrlCheck {
     url: String,
@@ -11,12 +11,22 @@ impl UrlCheck {
     }
 }
 
+#[async_trait]
 impl Check for UrlCheck {
-    async fn check(&self, ctx: CheckCtx) -> Result<Vec<CheckOutcome>, CheckError> {
+    async fn check(&self, ctx: CheckCtx<'_>) -> Result<Vec<CheckOutcome>, CheckError> {
         let response = ctx.http_client.get(&self.url).send().await?;
-        
-        match response { 
-            
+
+        match response.status() {
+            reqwest::StatusCode::OK => Ok(vec![CheckOutcome {
+                provider: self.url.clone(),
+                status: CheckStatus::Up,
+                causes: vec![],
+            }]),
+            _ => Ok(vec![CheckOutcome {
+                provider: self.url.clone(),
+                status: CheckStatus::Down,
+                causes: vec![],
+            }]),
         }
-    }   
+    }
 }
