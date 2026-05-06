@@ -710,6 +710,7 @@ dependencies = [
  "async-trait",
  "clap",
  "colored",
+ "encoding_rs",
  "futures",
  "phf",
  "reqwest",

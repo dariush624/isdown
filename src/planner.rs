@@ -24,6 +24,13 @@ impl Planner {
         let ctx = CheckCtx {
             http_client: &self.http_client,
         };
-        join_all(checks.iter().map(|check| check.check(ctx))).await
+        join_all(checks.iter().map(|check| check.check(ctx)))
+            .await
+            .into_iter()
+            .flat_map(|result| match result {
+                Ok(outcomes) => outcomes.into_iter().map(Ok).collect(),
+                Err(e) => vec![Err(e)],
+            })
+            .collect()
     }
 }

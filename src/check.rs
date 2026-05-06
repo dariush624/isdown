@@ -1,6 +1,8 @@
+mod aws;
 mod slack;
 mod statuspageio;
 
+use crate::check::aws::AwsCheck;
 use crate::check::slack::SlackCheck;
 use crate::check::statuspageio::{
     AtlassianCheck, CircleCICheck, CloudflareCheck, DatadogCheck, DiscordCheck, GitHubCheck,
@@ -19,7 +21,7 @@ pub struct CheckCtx<'a> {
 
 #[derive(PartialEq, Debug, Clone, Serialize)]
 pub struct CheckOutcome {
-    pub provider: &'static str,
+    pub provider: String,
     pub status: CheckStatus,
     pub causes: Vec<String>,
 }
@@ -33,7 +35,7 @@ pub enum CheckStatus {
 
 #[async_trait]
 pub trait Check {
-    async fn check(&self, ctx: CheckCtx<'_>) -> Result<CheckOutcome, CheckError>;
+    async fn check(&self, ctx: CheckCtx<'_>) -> Result<Vec<CheckOutcome>, CheckError>;
 }
 
 pub trait ProviderCheck: Send + Sync {
@@ -46,7 +48,7 @@ pub trait ProviderCheck: Send + Sync {
 
 #[async_trait]
 impl<T: ProviderCheck> Check for T {
-    async fn check(&self, ctx: CheckCtx<'_>) -> Result<CheckOutcome, CheckError> {
+    async fn check(&self, ctx: CheckCtx<'_>) -> Result<Vec<CheckOutcome>, CheckError> {
         let result = ctx
             .http_client
             .get(self.url())
@@ -56,15 +58,15 @@ impl<T: ProviderCheck> Check for T {
         let value = result.json::<Value>().await?;
         let status_string = self.parse_status(&value)?;
 
-        let provider = self.provider();
+        let provider = self.provider().to_string();
         let status = self.map_status(status_string);
         let causes = self.causes(&value);
 
-        Ok(CheckOutcome {
+        Ok(vec![CheckOutcome {
             provider,
             status,
             causes,
-        })
+        }])
     }
 }
 
@@ -83,15 +85,16 @@ impl ProviderKind {
             ProviderKind::Npm => Box::new(NpmCheck),
             ProviderKind::OpenAI => Box::new(OpenAICheck),
             ProviderKind::Vercel => Box::new(VercelCheck),
+            ProviderKind::Aws => Box::new(AwsCheck),
         }
     }
 }
 
 #[derive(Error, Debug)]
 pub enum CheckError {
-    #[error("Connection error")]
+    #[error("Connection error: {0}")]
     HttpError(#[from] reqwest::Error),
-    #[error("Invalid json")]
+    #[error("Invalid json: {0}")]
     JsonError(#[from] serde_json::Error),
     #[error("Parse error")]
     ParseError,
