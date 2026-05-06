@@ -20,7 +20,7 @@ macro_rules! statuspage_provider {
                     .and_then(|s| s.get("indicator"))
                     .and_then(|i| i.as_str())
                     .map(|s| s.to_string())
-                    .ok_or(CheckError::ParseError)
+                    .ok_or(CheckError::Parse)
             }
 
             fn map_status(&self, status: String) -> CheckStatus {
@@ -159,7 +159,7 @@ mod tests {
                 .and_then(|s| s.get("indicator"))
                 .and_then(|i| i.as_str())
                 .map(|s| s.to_string())
-                .ok_or(CheckError::ParseError)
+                .ok_or(CheckError::Parse)
         }
 
         fn map_status(&self, status: String) -> CheckStatus {

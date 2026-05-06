@@ -101,7 +101,7 @@ fn decode_utf16(bytes: &[u8]) -> Result<String, CheckError> {
 
     let (result, _, had_errors) = encoding.decode(bytes);
     if had_errors {
-        return Err(CheckError::ParseError);
+        return Err(CheckError::Parse);
     }
     Ok(result.into_owned())
 }

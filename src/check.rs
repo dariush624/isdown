@@ -94,9 +94,9 @@ impl ProviderKind {
 #[derive(Error, Debug)]
 pub enum CheckError {
     #[error("Connection error: {0}")]
-    HttpError(#[from] reqwest::Error),
+    Http(#[from] reqwest::Error),
     #[error("Invalid json: {0}")]
-    JsonError(#[from] serde_json::Error),
+    Json(#[from] serde_json::Error),
     #[error("Parse error")]
-    ParseError,
+    Parse,
 }

@@ -17,7 +17,7 @@ impl ProviderCheck for SlackCheck {
             .get("status")
             .and_then(|s| s.as_str())
             .map(|s| s.to_string())
-            .ok_or(CheckError::ParseError)
+            .ok_or(CheckError::Parse)
     }
 
     fn map_status(&self, status: String) -> CheckStatus {
