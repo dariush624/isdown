@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/dariush624/isdown/compare/v0.4.0...v0.4.1) (2026-05-06)
+
+
+### Bug Fixes
+
+* provide error message if error building http client ([c079e8c](https://github.com/dariush624/isdown/commit/c079e8c3a5bc45bd3cc5b897e01c78b432cd3cbe))
+
 ## [0.4.0](https://github.com/dariush624/isdown/compare/v0.3.2...v0.4.0) (2026-05-06)
 
 
