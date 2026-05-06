@@ -3,14 +3,26 @@ use crate::registry::{PROVIDER_REGISTRY, ProviderDetails};
 #[derive(Debug)]
 pub enum Target {
     Provider(ProviderDetails),
+    Url(String),
+    
 }
 
 impl Target {
     pub fn parse(target: &str) -> Option<Target> {
         let key = target.trim().to_lowercase();
-        PROVIDER_REGISTRY
+        let result = PROVIDER_REGISTRY
             .get(key.as_str())
-            .map(|details| Target::Provider(*details))
+            .map(|details| Target::Provider(*details));
+        
+        result.or_else(|| {
+            if key.starts_with("http") || key.starts_with("https") {
+                Some(Target::Url(target.to_string()))
+            } else {
+                None
+            }
+        });
+        
+        result
     }
 }
 
@@ -19,6 +31,12 @@ mod tests {
     use super::*;
     use crate::registry::ProviderKind;
 
+    #[test]
+    fn parse_url() {
+        let Target::Url(url) = Target::parse("https://example.com").unwrap();
+        assert_eq!(url, "https://example.com");
+    }
+    
     #[test]
     fn parse_known_provider() {
         let Target::Provider(d) = Target::parse("github").unwrap();
