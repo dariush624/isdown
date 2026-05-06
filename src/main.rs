@@ -74,6 +74,14 @@ async fn main() {
                     .collect();
                 println!("{}", serde_json::to_string_pretty(&json_outcomes).unwrap());
             } else {
+                let mut max_width = outcomes
+                    .iter()
+                    .filter_map(|o| o.as_ref().ok())
+                    .map(|o| o.provider.len())
+                    .max()
+                    .unwrap_or(0);
+                max_width = max_width.min(40);
+
                 for outcome in outcomes.iter() {
                     match outcome {
                         Ok(o) => {
@@ -83,7 +91,12 @@ async fn main() {
                                 CheckStatus::Degraded => "Degraded".yellow(),
                                 CheckStatus::Down => "Down".red(),
                             };
-                            println!("{}: {}", o.provider.bold(), status);
+                            let label = format!(
+                                "{:<width$}",
+                                format!("{}:", o.provider),
+                                width = max_width + 1
+                            );
+                            println!("{} {}", label.bold(), status);
                             for cause in &o.causes {
                                 println!("  · {}", cause.dimmed());
                             }
