@@ -48,12 +48,20 @@ async fn main() {
     };
     match cli.command {
         Commands::Check { targets, json } => {
-            let checks = planner.plan(
-                &targets
-                    .iter()
-                    .map(|target| Target::parse(target).unwrap())
-                    .collect::<Vec<_>>(),
-            );
+            let mut parsed_targets: Vec<Target> = vec![];
+            for target in targets.iter() {
+                match Target::parse(target) {
+                    Some(t) => {
+                        parsed_targets.push(t);
+                    }
+                    _ => {
+                        println!("{}: Invalid target - {}", "error".red().bold(), target);
+                        continue;
+                    }
+                }
+            }
+
+            let checks = planner.plan(&parsed_targets);
             let outcomes = planner.run(&checks).await;
 
             if json {
