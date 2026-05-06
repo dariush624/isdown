@@ -19,6 +19,7 @@ pub enum ProviderKind {
     OpenAI,
     Vercel,
     Aws,
+    Claude,
 }
 
 pub static PROVIDER_REGISTRY: phf::Map<&'static str, ProviderDetails> = phf::phf_map! {
@@ -35,4 +36,5 @@ pub static PROVIDER_REGISTRY: phf::Map<&'static str, ProviderDetails> = phf::phf
     "openai" => ProviderDetails { name: "OpenAI", kind: ProviderKind::OpenAI },
     "vercel" => ProviderDetails { name: "Vercel", kind: ProviderKind::Vercel },
     "aws" => ProviderDetails { name: "AWS", kind: ProviderKind::Aws },
+    "claude" => ProviderDetails { name: "Claude", kind: ProviderKind::Claude },
 };

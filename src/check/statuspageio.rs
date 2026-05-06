@@ -62,6 +62,7 @@ statuspage_provider!(NpmCheck, "npm", "status.npmjs.org");
 statuspage_provider!(OpenAICheck, "OpenAI", "status.openai.com");
 statuspage_provider!(VercelCheck, "Vercel", "www.vercel-status.com");
 statuspage_provider!(GitHubCheck, "GitHub", "www.githubstatus.com");
+statuspage_provider!(ClaudeCheck, "Claude", "status.claude.com");
 
 #[cfg(test)]
 mod tests {

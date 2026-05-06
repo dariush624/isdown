@@ -5,8 +5,8 @@ mod statuspageio;
 use crate::check::aws::AwsCheck;
 use crate::check::slack::SlackCheck;
 use crate::check::statuspageio::{
-    AtlassianCheck, CircleCICheck, CloudflareCheck, DatadogCheck, DiscordCheck, GitHubCheck,
-    LinearCheck, NetlifyCheck, NpmCheck, OpenAICheck, VercelCheck,
+    AtlassianCheck, CircleCICheck, ClaudeCheck, CloudflareCheck, DatadogCheck, DiscordCheck,
+    GitHubCheck, LinearCheck, NetlifyCheck, NpmCheck, OpenAICheck, VercelCheck,
 };
 use crate::registry::ProviderKind;
 use async_trait::async_trait;
@@ -86,6 +86,7 @@ impl ProviderKind {
             ProviderKind::OpenAI => Box::new(OpenAICheck),
             ProviderKind::Vercel => Box::new(VercelCheck),
             ProviderKind::Aws => Box::new(AwsCheck),
+            ProviderKind::Claude => Box::new(ClaudeCheck),
         }
     }
 }
