@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/dariush624/isdown/compare/isdown-v0.2.0...isdown-v0.3.0) (2026-05-06)
+
+
+### Features
+
+* add chatgpt alias for openai ([b804605](https://github.com/dariush624/isdown/commit/b804605a2cd3ecf68e83d671254687b5169bbead))
+
 ## [0.2.0](https://github.com/dariush624/isdown/compare/isdown-v0.1.0...isdown-v0.2.0) (2026-05-06)
 
 
