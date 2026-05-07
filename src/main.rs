@@ -7,6 +7,8 @@ use serde::Serialize;
 use std::process::exit;
 use std::time::Duration;
 
+const CLEAR: &str = "\x1B[2J";
+
 #[derive(Parser, Debug)]
 #[command(name = "isdown")]
 #[command(about = "Detect downtime on any service", long_about = "")]
@@ -101,6 +103,7 @@ async fn main() {
                             for cause in &o.causes {
                                 println!("  · {}", cause.dimmed());
                             }
+                            println!("\x1B[2J")
                         }
                         Err(e) => println!("{}: {}", "error".red().bold(), e),
                     }

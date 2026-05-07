@@ -35,7 +35,7 @@ pub enum CheckStatus {
 }
 
 #[async_trait]
-pub trait Check {
+pub trait Check: Send + Sync {
     async fn check(&self, ctx: CheckCtx<'_>) -> Result<Vec<CheckOutcome>, CheckError>;
 }
 
