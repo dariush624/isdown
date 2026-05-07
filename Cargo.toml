@@ -1,10 +1,28 @@
 [package]
 name = "isdown"
+description = "Check if a service is down or not."
+repository = "https://github.com/dariush624/isdown"
+homepage = "https://github.com/dariush624/isdown"
+license-file = "LICENSE"
+license = "MIT"
+categories = [
+    "command-line-utilities",
+    "network-programming",
+    "monitoring",
+    "utilities"]
+keywords = [
+    "cli",
+    "utility",
+    "monitoring",
+    "downtime", 
+    ]
 version = "0.4.1"
 edition = "2024"
 authors = [
     "Dariush Moshiri <dariush.moshiri@outlook.com>"
 ]
+
+exclude = [".github/", ".idea/", ".release-please-manifest.json", "release-please-config.json"]
 
 [dev-dependencies]
 httpmock = "0.7"
