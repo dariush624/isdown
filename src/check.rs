@@ -1,7 +1,7 @@
 mod aws;
 mod slack;
 mod statuspageio;
-pub(crate) mod url;
+pub mod url;
 
 use crate::check::aws::AwsCheck;
 use crate::check::slack::SlackCheck;
@@ -17,7 +17,7 @@ use thiserror::Error;
 
 #[derive(Copy, Clone)]
 pub struct CheckCtx<'a> {
-    pub(crate) http_client: &'a reqwest::Client,
+    pub http_client: &'a reqwest::Client,
 }
 
 #[derive(PartialEq, Debug, Clone, Serialize)]

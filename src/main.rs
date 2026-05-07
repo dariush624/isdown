@@ -1,13 +1,8 @@
-mod check;
-mod planner;
-mod registry;
-mod target;
-
-use crate::check::CheckOutcome;
-use crate::planner::Planner;
-use crate::target::Target;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
+use isdown::check::{CheckOutcome, CheckStatus};
+use isdown::planner::Planner;
+use isdown::target::Target;
 use serde::Serialize;
 use std::process::exit;
 use std::time::Duration;
@@ -92,7 +87,6 @@ async fn main() {
                 for outcome in outcomes.iter() {
                     match outcome {
                         Ok(o) => {
-                            use crate::check::CheckStatus;
                             let status = match o.status {
                                 CheckStatus::Up => "Up".green(),
                                 CheckStatus::Degraded => "Degraded".yellow(),

@@ -4,7 +4,7 @@ use crate::target::Target;
 use futures::future::join_all;
 
 pub struct Planner {
-    pub(crate) http_client: reqwest::Client,
+    pub http_client: reqwest::Client,
 }
 
 impl Planner {
