@@ -8,6 +8,7 @@ use tokio::time::Instant;
 
 pub struct WatchEvent {
     pub outcomes: Vec<Result<CheckOutcome, CheckError>>,
+    pub elapsed: Duration,
 }
 
 pub struct Watcher {
@@ -50,8 +51,13 @@ impl Watcher {
 
             while now.elapsed() < duration {
                 let results = planner.run(&checks).await;
-
-                sender.send(WatchEvent { outcomes: results }).await.unwrap(); // TODO: handle error
+                sender
+                    .send(WatchEvent {
+                        outcomes: results,
+                        elapsed: now.elapsed(),
+                    })
+                    .await
+                    .unwrap(); // TODO: handle error
                 tokio::time::sleep(interval).await;
             }
         });
