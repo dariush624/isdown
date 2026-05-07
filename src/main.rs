@@ -67,7 +67,7 @@ async fn main() {
             interval,
             duration,
         } => {
-            watch_targets(targets, interval, duration).await;
+            watch_targets(targets, interval, duration, cli.timeout).await;
         }
         Commands::Check { targets, json } => {
             check_targets(&planner, targets, json).await;
@@ -75,19 +75,22 @@ async fn main() {
     }
 }
 
-async fn watch_targets(targets: Vec<String>, interval: u64, duration: String) {
+async fn watch_targets(targets: Vec<String>, interval: u64, duration: String, http_timeout: u64) {
     let watch_interval = Duration::from_secs(interval);
     let watch_duration = parse(duration).unwrap_or(DEFAULT_WATCH_DURATION);
     let parsed_targets = parse_targets(&targets);
 
     let watcher = Watcher::new(parsed_targets, watch_interval, Some(watch_duration));
-    let mut receiver = watcher.watch().await;
+    let mut receiver = watcher.watch(http_timeout);
 
     while let Some(event) = receiver.recv().await {
         print!("{}", CLEAR);
         print_outcomes(&event.outcomes);
-        println!("Watching for {} seconds...", watch_duration.as_secs());
-        println!("Elapsed: {} seconds", event.elapsed.as_secs());
+        println!(
+            "Elapsed: {} seconds of {}",
+            event.elapsed.as_secs(),
+            watch_duration.as_secs()
+        );
         println!("Press Ctrl+C to exit");
     }
 }

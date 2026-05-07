@@ -3,7 +3,6 @@ name = "isdown"
 description = "Check if a service is down or not."
 repository = "https://github.com/dariush624/isdown"
 homepage = "https://github.com/dariush624/isdown"
-license-file = "LICENSE"
 license = "MIT"
 categories = [
     "command-line-utilities",

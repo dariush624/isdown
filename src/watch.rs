@@ -1,8 +1,8 @@
-use crate::check::{Check, CheckError, CheckOutcome};
+use crate::check::{CheckError, CheckOutcome};
 use crate::planner::Planner;
 use crate::target;
 use std::sync::Arc;
-use tokio::sync::mpsc::{Receiver, Sender};
+use tokio::sync::mpsc::Receiver;
 use tokio::time::Duration;
 use tokio::time::Instant;
 
@@ -30,35 +30,51 @@ impl Watcher {
         }
     }
 
-    pub async fn watch(&self) -> Receiver<WatchEvent> {
+    pub fn watch(&self, http_timeout: u64) -> Receiver<WatchEvent> {
         let (sender, receiver) = tokio::sync::mpsc::channel(64);
 
         let targets = self.targets.clone();
-        let interval = self.interval.clone();
-        let duration = self
-            .duration
-            .clone()
-            .unwrap_or(Duration::from_secs(u64::MAX));
+        let interval = self.interval;
+        let duration = self.duration.unwrap_or(Duration::from_secs(u64::MAX));
 
         tokio::spawn(async move {
             let now = Instant::now();
 
+            let http_client = reqwest::Client::builder()
+                .timeout(Duration::from_secs(http_timeout))
+                .build();
+
+            if http_client.is_err() {
+                return;
+            }
+
             let planner = Planner {
-                http_client: reqwest::Client::new(), // TODO: make configurable
+                http_client: http_client.unwrap(),
             };
 
             let checks = planner.plan(&targets);
 
             while now.elapsed() < duration {
                 let results = planner.run(&checks).await;
-                sender
+                if sender
                     .send(WatchEvent {
                         outcomes: results,
                         elapsed: now.elapsed(),
                     })
                     .await
-                    .unwrap(); // TODO: handle error
-                tokio::time::sleep(interval).await;
+                    .is_err()
+                {
+                    break;
+                }
+                tokio::select! {
+                    _ = tokio::signal::ctrl_c() => {
+                        break;
+                    },
+                    _ = sender.closed() => {
+                        break;
+                    },
+                    _ = tokio::time::sleep(interval) => {}
+                }
             }
         });
 
