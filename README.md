@@ -20,14 +20,6 @@ Slack:   Degraded
   · Slow API (investigating)
 ```
 
-## Features
-
-- **14 built-in services** — GitHub, AWS, Slack, Cloudflare, and more
-- **Concurrent checks** — all services queried in parallel
-- **URL targets** — check any HTTP endpoint directly
-- **JSON output** — machine-readable results with `--json`
-- **Incident details** — shows active incidents and their status
-
 ## Installation
 
 ### From source (requires [Rust toolchain](https://rustup.rs/))
@@ -86,26 +78,6 @@ isdown check github slack --json
 isdown -t 5 check aws
 ```
 
-## Supported Services
-
-| Name         | Key               | Status Source               |
-| ------------ |-------------------| --------------------------- |
-| GitHub       | `github`          | Statuspage                  |
-| Slack        | `slack`           | Slack Status API            |
-| AWS          | `aws`             | AWS Health Dashboard        |
-| Atlassian    | `atlassian`       | Statuspage                  |
-| CircleCI     | `circleci`        | Statuspage                  |
-| Claude       | `claude`          | Statuspage                  |
-| Cloudflare   | `cloudflare`      | Statuspage                  |
-| Datadog      | `datadog`         | Statuspage                  |
-| Discord      | `discord`         | Statuspage                  |
-| Linear       | `linear`          | Statuspage                  |
-| Netlify      | `netlify`         | Statuspage                  |
-| npm          | `npm`             | Statuspage                  |
-| OpenAI       | `openai`/`chatgpt` | Statuspage                  |
-| Vercel       | `vercel`          | Statuspage                  |
-
-
 ## Options
 
 | Flag              | Default | Description                |
@@ -119,7 +91,6 @@ isdown -t 5 check aws
 
 - **Statuspage-based services** (GitHub, Cloudflare, Discord, etc.) use the [Atlassian Statuspage](https://www.atlassianstatuspage.com/) `/api/v2/summary.json` endpoint
 - **AWS** parses the [AWS Health Dashboard](https://health.aws.amazon.com/) events feed, reporting per-service and per-region incidents
-- **Slack** uses the Slack Status API
 - **URL targets** perform a simple HTTP GET and report Up (200) or Down (non-200)
 
 ## Contributing
