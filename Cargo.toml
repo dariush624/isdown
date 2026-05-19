@@ -3,7 +3,6 @@ name = "isdown"
 description = "Check if a service is down or not."
 repository = "https://github.com/dariush624/isdown"
 homepage = "https://github.com/dariush624/isdown"
-license-file = "LICENSE"
 license = "MIT"
 categories = [
     "command-line-utilities",
@@ -40,3 +39,4 @@ futures = "0.3.32"
 colored = "2"
 serde = { version = "1.0.228", features = ["derive"] }
 encoding_rs = "0.8.35"
+duration-str = "0.21.0"
